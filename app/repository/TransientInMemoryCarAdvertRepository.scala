@@ -1,5 +1,7 @@
 package repository
+
 import java.util.UUID
+import javax.inject._
 
 import model.CarAdvert
 
@@ -8,6 +10,7 @@ import model.CarAdvert
   *
   * This is mainly just for getting started having some implementation of a repositry or e.g. for mocking purposes.
   */
+@Singleton
 class TransientInMemoryCarAdvertRepository extends CarAdvertRepository {
 
   private var carAdverts = Map[UUID, CarAdvert]()

@@ -45,6 +45,10 @@ class CarAdvertController @Inject()(carAdvertRepository: CarAdvertRepository) ex
     }
   }
 
+  def index = Action {
+    Ok("Car advert service running.")
+  }
+
   def carAdverts(sortby: Option[String] = Some("id")) = Action {
     val json = Json.toJson(carAdvertRepository.get(sortby.getOrElse("id")))
     Ok(json)

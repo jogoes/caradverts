@@ -4,15 +4,17 @@ import org.scalatestplus.play._
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
-import play.api.test.Helpers.{BAD_REQUEST => _, OK => _}
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import testutil.CarAdvertFactory
 
 class CarAdvertServerSpec extends PlaySpec with OneServerPerTest with DefaultAwaitTimeout with FutureAwaits {
 
   def address: String = s"localhost:$port"
+
   def url: String = s"http://$address/caradverts"
+
   def wsClient: WSClient = app.injector.instanceOf[WSClient]
+
   def request: WSRequest = wsClient.url(url)
 
   def toAdverts(response: WSResponse): Seq[CarAdvert] = Json.parse(response.body).validate[Seq[CarAdvert]].get
@@ -44,7 +46,6 @@ class CarAdvertServerSpec extends PlaySpec with OneServerPerTest with DefaultAwa
 
     {
       val response = await(request.withHeaders(("Content-Type", "application/json")).put(Json.toJson(advert3)))
-      println(response.body)
       response.status mustBe OK
     }
 

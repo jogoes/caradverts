@@ -1,27 +1,14 @@
 package repository
 
-import java.time.LocalDate
 import java.util.UUID
 
-import model.FuelType.FuelType
-import model.{CarAdvert, FuelType}
+import model.FuelType
+import FuelType._
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
-
-import scala.util.Random
-
-object TransientInMemoryCarAdvertRepositorySpec {
-
-  def usedCarAdvert(name: String, fuelType: FuelType) : CarAdvert = CarAdvert(UUID.randomUUID(), name, fuelType, Random.nextInt(), isNew=false, Some(Random.nextInt), Some(LocalDate.now()))
-
-  def newCarAdvert(name: String, fuelType: FuelType) : CarAdvert = newCarAdvert(UUID.randomUUID(), name, fuelType)
-
-  def newCarAdvert(id: UUID, name: String, fuelType: FuelType) : CarAdvert = CarAdvert(id, name, fuelType, Random.nextInt(), isNew=true, None, None)
-}
+import testutil.CarAdvertFactory._
 
 class TransientInMemoryCarAdvertRepositorySpec extends FlatSpec with Matchers with BeforeAndAfterEach {
 
-  import FuelType._
-  import TransientInMemoryCarAdvertRepositorySpec._
 
   var repository: TransientInMemoryCarAdvertRepository = _
 

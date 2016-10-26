@@ -17,7 +17,7 @@ class CarAdvertFormatSpec extends FlatSpec with Matchers {
   val jsonAdvertNew = """{"id":"75fb4ade-f5c7-4da3-b88a-4d6b7d8c42a8","title":"advert1","fuel":"GASOLINE","price":1234,"isnew":true}"""
 
   "CarAdvertFormat" should "convert object to json" in {
-    Json.toJson(advertUsed).toString should equal("""{"id":"75fb4ade-f5c7-4da3-b88a-4d6b7d8c42a8","title":"advert1","fuel":"GASOLINE","price":1234,"isnew":false,"mileage":5678,"firstRegistration":"2016-10-11"}""")
+    Json.toJson(advertUsed).toString should equal(jsonAdvertUsed)
   }
 
   it should "omit none members from json" in {

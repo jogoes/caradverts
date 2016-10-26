@@ -15,4 +15,5 @@ GET           /assets/*file          controllers.Assets.versioned(path="/public"
 GET           /caradverts            controllers.CarAdvertController.carAdverts
 GET           /caradverts/:id        controllers.CarAdvertController.carAdvertById(id: String)
 DELETE        /caradverts/:id        controllers.CarAdvertController.deleteById(id: String)
+PUT           /caradverts            controllers.CarAdvertController.update
 POST          /caradverts            controllers.CarAdvertController.add

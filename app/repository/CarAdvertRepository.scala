@@ -10,7 +10,7 @@ trait CarAdvertRepository {
 
   def getById(id: UUID): Option[CarAdvert]
 
-  def add(carAdvert: CarAdvert): Unit
+  def add(carAdvert: CarAdvert): Boolean
 
   def update(carAdvert: CarAdvert): Boolean
 

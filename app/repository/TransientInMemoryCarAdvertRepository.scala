@@ -19,12 +19,21 @@ class TransientInMemoryCarAdvertRepository extends CarAdvertRepository {
 
   override def getById(id: UUID): Option[CarAdvert] = carAdverts.get(id)
 
-  override def add(carAdvert: CarAdvert): Unit = carAdverts = carAdverts + (carAdvert.id -> carAdvert)
+  override def add(carAdvert: CarAdvert): Boolean = {
+    val exists = carAdverts.get(carAdvert.id).isDefined
+    if(!exists) {
+      carAdverts = carAdverts + (carAdvert.id -> carAdvert)
+    }
+    // return true if advert was added
+    !exists
+  }
 
   override def update(carAdvert: CarAdvert): Boolean = {
-    val found = getById(carAdvert.id)
-    found.foreach(_ => add(carAdvert)) // just add if existing since this implementation just replaces it when having the same id
-    found.isDefined
+    val exists = carAdverts.get(carAdvert.id).isDefined
+    if(exists) {
+      carAdverts = carAdverts + (carAdvert.id -> carAdvert)
+    }
+    exists
   }
 
   override def delete(id: UUID): Boolean = {

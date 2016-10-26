@@ -41,6 +41,7 @@ class TransientInMemoryCarAdvertRepositorySpec extends FlatSpec with Matchers wi
     val newAdvert = newCarAdvert(adverts.head.id, "advert10", FuelType.GASOLINE)
 
     repository.update(newAdvert) shouldBe true
+    val advert = repository.getById(adverts.head.id)
     repository.getById(adverts.head.id) shouldBe Some(newAdvert)
   }
 

@@ -1,5 +1,6 @@
 package controller
 
+import java.time.LocalDate
 import java.util.UUID
 
 import controllers.CarAdvertController
@@ -27,7 +28,6 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
     CarAdvertFactory.newCarAdvert("advert2", FuelType.DIESEL)
   )
 
-
   override protected def beforeEach(): Unit = {
     carAdvertRepository = new TransientInMemoryCarAdvertRepository
     carAdverts.foreach(carAdvertRepository.add)
@@ -35,24 +35,27 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
     controller = new CarAdvertController(carAdvertRepository)
   }
 
+  def toAdverts(result: Future[Result]) : Seq[CarAdvert] = contentAsJson(result).validate[Seq[CarAdvert]].get
+
+  def toAdvert(result: Future[Result]) : Option[CarAdvert] = contentAsJson(result).validate[CarAdvert].asOpt
+
+  implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
+
   "CarAdvertController" should {
+
     "return car adverts in repository" in {
 
       val result: Future[Result] = controller.carAdverts().apply(FakeRequest())
 
       status(result) must equal(OK)
-
-      val adverts = contentAsJson(result).validate[Seq[CarAdvert]]
-      adverts.get must contain theSameElementsAs carAdverts
+      toAdverts(result) must contain theSameElementsAs carAdverts
     }
 
     "return existing car advert by id" in {
       val result: Future[Result] = controller.carAdvertById(carAdverts.head.id.toString).apply(FakeRequest())
 
       status(result) must equal(OK)
-
-      val adverts = contentAsJson(result).validate[CarAdvert]
-      adverts.get must equal(carAdverts.head)
+      toAdvert(result) must equal(Some(carAdverts.head))
     }
 
     "return not found error in case getting non-existing car advert by id" in {
@@ -67,15 +70,50 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
       status(result) must equal(BAD_REQUEST)
     }
 
-    "deleting existing advert should return ok" in {
+    "return car adverts sorted by title" in {
+      carAdvertRepository.add(CarAdvertFactory.newCarAdvert("aa", FuelType.GASOLINE))
+      carAdvertRepository.add(CarAdvertFactory.newCarAdvert("zz", FuelType.GASOLINE))
 
+      val result: Future[Result] = controller.carAdverts(Some("title")).apply(FakeRequest())
+
+      status(result) must equal(OK)
+      toAdverts(result).map(_.title) mustBe sorted
+    }
+
+    "return car adverts sorted by price" in {
+      carAdvertRepository.add(CarAdvertFactory.newCarAdvert("aa", FuelType.GASOLINE))
+      carAdvertRepository.add(CarAdvertFactory.newCarAdvert("zz", FuelType.GASOLINE))
+
+      val result: Future[Result] = controller.carAdverts(Some("price")).apply(FakeRequest())
+      status(result) must equal(OK)
+      toAdverts(result).map(_.price) mustBe sorted
+    }
+
+    "return car adverts sorted by mileage" in {
+      carAdvertRepository.add(CarAdvertFactory.usedCarAdvert("aa", FuelType.GASOLINE))
+      carAdvertRepository.add(CarAdvertFactory.usedCarAdvert("zz", FuelType.GASOLINE))
+
+      val result: Future[Result] = controller.carAdverts(Some("mileage")).apply(FakeRequest())
+      status(result) must equal(OK)
+      toAdverts(result).map(_.mileage) mustBe sorted
+    }
+
+    "return car adverts sorted by first registration" in {
+      carAdvertRepository.add(CarAdvertFactory.usedCarAdvert("aa", FuelType.GASOLINE))
+      carAdvertRepository.add(CarAdvertFactory.usedCarAdvert("zz", FuelType.GASOLINE))
+
+      val result: Future[Result] = controller.carAdverts(Some("firstregistration")).apply(FakeRequest())
+      status(result) must equal(OK)
+      toAdverts(result).map(_.firstRegistration) mustBe sorted
+    }
+
+    "deleting existing advert should return ok" in {
       val result: Future[Result] = controller.deleteById(carAdverts.head.id.toString).apply(FakeRequest())
 
       status(result) must equal(OK)
     }
 
     "deleting non-existing advert should return error" in {
-
       val result: Future[Result] = controller.deleteById(UUID.randomUUID().toString).apply(FakeRequest())
 
       status(result) must equal(NOT_FOUND)

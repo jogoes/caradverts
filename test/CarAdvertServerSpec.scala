@@ -1,26 +1,21 @@
 import json.CarAdvertFormat._
 import model.{CarAdvert, FuelType}
-import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play._
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.libs.ws.{WSClient, WSRequest}
+import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
+import play.api.test.Helpers.{BAD_REQUEST => _, OK => _}
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import testutil.CarAdvertFactory
 
-class CarAdvertServerSpec extends PlaySpec with OneServerPerSuite with DefaultAwaitTimeout with FutureAwaits with BeforeAndAfterEach {
+class CarAdvertServerSpec extends PlaySpec with OneServerPerTest with DefaultAwaitTimeout with FutureAwaits {
 
-  var address : String = _
-  var url : String = _
-  var wsClient : WSClient = _
-  var request : WSRequest = _
+  def address: String = s"localhost:$port"
+  def url: String = s"http://$address/caradverts"
+  def wsClient: WSClient = app.injector.instanceOf[WSClient]
+  def request: WSRequest = wsClient.url(url)
 
-  override protected def beforeEach(): Unit = {
-    address = s"localhost:$port"
-    url = s"http://$address/caradverts"
-    wsClient = app.injector.instanceOf[WSClient]
-    request = wsClient.url(url)
-  }
+  def toAdverts(response: WSResponse): Seq[CarAdvert] = Json.parse(response.body).validate[Seq[CarAdvert]].get
 
   "test adding car adverts" in {
     val advert1 = CarAdvertFactory.newCarAdvert("advert1", FuelType.GASOLINE)
@@ -40,8 +35,8 @@ class CarAdvertServerSpec extends PlaySpec with OneServerPerSuite with DefaultAw
     {
       var response = await(request.get())
       response.status mustBe OK
-      val carAdverts = Json.parse(response.body).validate[Seq[CarAdvert]]
-      carAdverts.get must contain theSameElementsAs Seq(advert1, advert2)
+      val carAdverts = toAdverts(response)
+      carAdverts must contain theSameElementsAs Seq(advert1, advert2)
     }
 
     // update car advert
@@ -57,8 +52,8 @@ class CarAdvertServerSpec extends PlaySpec with OneServerPerSuite with DefaultAw
     {
       var response = await(request.get())
       response.status mustBe OK
-      val carAdverts = Json.parse(response.body).validate[Seq[CarAdvert]]
-      carAdverts.get must contain theSameElementsAs Seq(advert1, advert3)
+      val carAdverts = toAdverts(response)
+      carAdverts must contain theSameElementsAs Seq(advert1, advert3)
     }
 
     // delete car advert
@@ -71,9 +66,36 @@ class CarAdvertServerSpec extends PlaySpec with OneServerPerSuite with DefaultAw
     {
       val response = await(request.get())
       response.status mustBe OK
-      val carAdverts = Json.parse(response.body).validate[Seq[CarAdvert]]
-      carAdverts.get must contain theSameElementsAs Seq(advert3)
+      val carAdverts = toAdverts(response)
+      carAdverts must contain theSameElementsAs Seq(advert3)
+    }
+  }
+
+  "car adverts are returned sorted" in {
+    val adverts = Seq(
+      CarAdvertFactory.newCarAdvert("advert1", FuelType.GASOLINE),
+      CarAdvertFactory.newCarAdvert("advert2", FuelType.DIESEL)
+    )
+
+    adverts.foreach(advert => {
+      var response = await(request.post(Json.toJson(advert)))
+      response.status mustBe OK
+    })
+
+    {
+      val response = await(request.withQueryString("sortby" -> "title").get())
+      response.status mustBe OK
+      val carAdverts = toAdverts(response)
+      carAdverts.length mustBe adverts.length
+      carAdverts.map(_.title) mustBe sorted
     }
 
+    {
+      val response = await(request.withQueryString("sortby" -> "mileage").get())
+      response.status mustBe OK
+      val carAdverts = toAdverts(response)
+      carAdverts.length mustBe adverts.length
+      carAdverts.map(_.mileage) mustBe sorted
+    }
   }
 }

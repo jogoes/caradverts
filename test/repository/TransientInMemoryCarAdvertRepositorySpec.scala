@@ -1,4 +1,4 @@
-package app.repository
+package repository
 
 import java.time.LocalDate
 import java.util.UUID
@@ -6,7 +6,6 @@ import java.util.UUID
 import model.FuelType.FuelType
 import model.{CarAdvert, FuelType}
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
-import repository.{CarAdvertRepository, TransientInMemoryCarAdvertRepository}
 
 import scala.util.Random
 

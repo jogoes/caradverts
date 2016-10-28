@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration>
+    <jdbc>
+        <driver>org.h2.Driver</driver>
+        <url>jdbc:h2:file:~/caradvert</url>
+        <user>sa</user>
+        <password/>
+    </jdbc>
+
+    <generator>
+        <name>org.jooq.util.ScalaGenerator</name>
+        <database>
+
+            <customTypes>
+                <customType>
+                    <name>model.FuelType.FuelType</name>
+                    <converter>repository.jooq.FuelTypeConverter</converter>
+                </customType>
+                <customType>
+                    <name>java.util.UUID</name>
+                    <converter>repository.jooq.UUIDConverter</converter>
+                </customType>
+                <customType>
+                    <name>java.time.LocalDate</name>
+                    <converter>repository.jooq.SqlDateToLocalDateConverter</converter>
+                </customType>
+            </customTypes>
+            <forcedTypes>
+                <forcedType>
+                    <name>model.FuelType.FuelType</name>
+                    <expression>.*\.FUEL.*</expression>
+                </forcedType>
+                <forcedType>
+                    <name>java.util.UUID</name>
+                    <expression>.*\.ID.*</expression>
+                </forcedType>
+                <forcedType>
+                    <name>java.time.LocalDate</name>
+                    <expression>.*\.FIRSTREGISTRATION.*</expression>
+                </forcedType>
+            </forcedTypes>
+
+            <name>org.jooq.util.h2.H2Database</name>
+            <inputSchema>PUBLIC</inputSchema>
+            <includes>.*CARADVERT.*</includes>
+        </database>
+
+        <target>
+            <packageName>generated</packageName>
+            <directory>app</directory>
+        </target>
+    </generator>
+</configuration>

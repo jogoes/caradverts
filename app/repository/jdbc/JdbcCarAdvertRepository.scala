@@ -1,4 +1,4 @@
-package repository
+package repository.jdbc
 
 import java.sql.{Connection, Date, ResultSet, Types}
 import java.time.LocalDate
@@ -7,6 +7,7 @@ import javax.inject.Inject
 
 import model.{CarAdvert, FuelType}
 import play.api.db.Database
+import repository.{CarAdvertRepository, SortFields}
 
 class JdbcCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepository {
 
@@ -40,15 +41,17 @@ class JdbcCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
     }
   }
 
+
   override def get(sortField: String): Seq[CarAdvert] = {
+
+    val dbSortField = if (SortFields.ALL.contains(sortField)) sortField else SortFields.ID
+
     db.withConnection {
       connection => {
         val stmt = connection.createStatement()
-        // TODO we are opening the gates for SQL injection here - fix this
-        // TODO check whether sortField is a valid field and prevent possible SQL exceptions
         // sort in descending order since we are prepending the items later to the returned sequence
         // and we want them in ascending order there
-        val rs = stmt.executeQuery(s"SELECT * FROM caradvert ORDER BY $sortField DESC")
+        val rs = stmt.executeQuery(s"SELECT * FROM caradvert ORDER BY $dbSortField DESC")
 
         var adverts = Seq[CarAdvert]()
         while (rs.next()) {

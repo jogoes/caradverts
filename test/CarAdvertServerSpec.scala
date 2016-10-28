@@ -9,7 +9,8 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
-import repository.{CarAdvertRepository, TransientInMemoryCarAdvertRepository}
+import repository.CarAdvertRepository
+import repository.inmemory.TransientInMemoryCarAdvertRepository
 import testutil.CarAdvertFactory
 
 class CarAdvertServerSpec extends PlaySpec with OneServerPerTest with DefaultAwaitTimeout with FutureAwaits {

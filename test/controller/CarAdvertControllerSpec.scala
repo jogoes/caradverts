@@ -1,6 +1,5 @@
 package controller
 
-import java.time.LocalDate
 import java.util.UUID
 
 import controllers.{CarAdvertController, ErrorCodes}
@@ -13,7 +12,9 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import repository.{CarAdvertRepository, TransientInMemoryCarAdvertRepository}
+import repository.Orderings._
+import repository.inmemory.TransientInMemoryCarAdvertRepository
+import repository.{CarAdvertRepository, SortFields}
 import testutil.CarAdvertFactory
 
 import scala.concurrent.Future
@@ -44,8 +45,6 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
     (jsonError\ "code").get.validate[Int].get mustBe code
     (jsonError \ "message").get.validate[String].get mustNot be(empty)
   }
-
-  implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
 
   "CarAdvertController" should {
 
@@ -82,7 +81,7 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
       carAdvertRepository.add(CarAdvertFactory.newCarAdvert("aa", FuelType.GASOLINE))
       carAdvertRepository.add(CarAdvertFactory.newCarAdvert("zz", FuelType.GASOLINE))
 
-      val result: Future[Result] = controller.carAdverts(Some("title")).apply(FakeRequest())
+      val result: Future[Result] = controller.carAdverts(Some(SortFields.TITLE)).apply(FakeRequest())
 
       status(result) must equal(OK)
       toAdverts(result).map(_.title) mustBe sorted
@@ -92,7 +91,7 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
       carAdvertRepository.add(CarAdvertFactory.newCarAdvert("aa", FuelType.GASOLINE))
       carAdvertRepository.add(CarAdvertFactory.newCarAdvert("zz", FuelType.GASOLINE))
 
-      val result: Future[Result] = controller.carAdverts(Some("price")).apply(FakeRequest())
+      val result: Future[Result] = controller.carAdverts(Some(SortFields.PRICE)).apply(FakeRequest())
       status(result) must equal(OK)
       toAdverts(result).map(_.price) mustBe sorted
     }
@@ -101,7 +100,7 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
       carAdvertRepository.add(CarAdvertFactory.usedCarAdvert("aa", FuelType.GASOLINE))
       carAdvertRepository.add(CarAdvertFactory.usedCarAdvert("zz", FuelType.GASOLINE))
 
-      val result: Future[Result] = controller.carAdverts(Some("mileage")).apply(FakeRequest())
+      val result: Future[Result] = controller.carAdverts(Some(SortFields.MILEAGE)).apply(FakeRequest())
       status(result) must equal(OK)
       toAdverts(result).map(_.mileage) mustBe sorted
     }
@@ -110,7 +109,7 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
       carAdvertRepository.add(CarAdvertFactory.usedCarAdvert("aa", FuelType.GASOLINE))
       carAdvertRepository.add(CarAdvertFactory.usedCarAdvert("zz", FuelType.GASOLINE))
 
-      val result: Future[Result] = controller.carAdverts(Some("firstregistration")).apply(FakeRequest())
+      val result: Future[Result] = controller.carAdverts(Some(SortFields.FIRSTREGISTRATION)).apply(FakeRequest())
       status(result) must equal(OK)
       toAdverts(result).map(_.firstRegistration) mustBe sorted
     }

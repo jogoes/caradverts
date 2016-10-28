@@ -1,5 +1,6 @@
 package repository
 
+import java.time.LocalDate
 import java.util.UUID
 
 import model.FuelType
@@ -15,7 +16,9 @@ abstract class AbstractCarAdvertRepositorySpec extends FlatSpec with Matchers wi
 
   val adverts = Seq(
     usedCarAdvert("advert1", GASOLINE),
-    newCarAdvert("advert2", DIESEL)
+    newCarAdvert("advert3", DIESEL),
+    usedCarAdvert("advert2", DIESEL),
+    newCarAdvert("advert4", GASOLINE)
   )
 
   override protected def beforeEach(): Unit = {
@@ -23,11 +26,51 @@ abstract class AbstractCarAdvertRepositorySpec extends FlatSpec with Matchers wi
     fillRepository(repository)
   }
 
+  implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
+
+  implicit val uuidOrdering: Ordering[UUID] = Ordering.by(_.toString)
+
+  implicit val fuelOrdering: Ordering[FuelType.FuelType] = Ordering.by(_.toString)
+
   private def fillRepository(repository: CarAdvertRepository) = adverts.foreach(repository.add)
 
   "CarAdvertRepository" should "add and get car adverts" in {
     val results = repository.get()
     repository.get() should contain theSameElementsAs adverts
+  }
+
+  it should "return car adverts sorted by id" in {
+    repository.get("id").map(_.id) shouldBe sorted
+  }
+
+  it should "return car adverts sorted by title" in {
+    repository.get("title").map(_.title) shouldBe sorted
+  }
+
+  it should "return car adverts sorted by fuel" in {
+    repository.get("fuel").map(_.fuel) shouldBe sorted
+  }
+
+  it should "return car adverts sorted by price" in {
+    repository.get("price").map(_.price) shouldBe sorted
+  }
+
+  it should "return car adverts sorted by id if sort field is unknown" in {
+    repository.get("abcd").map(_.id) shouldBe sorted
+  }
+
+  it should "return car adverts sorted by mileage" in {
+    val mileages = repository.get("mileage").map(_.mileage)
+    val nonEmptyMileages = mileages.dropWhile(m => m.isEmpty)
+    nonEmptyMileages.exists(m => m.isEmpty) shouldBe false
+    nonEmptyMileages shouldBe sorted
+  }
+
+  it should "return car adverts sorted by firstregistration" in {
+    val firstRegistrations = repository.get("firstregistration").map(_.firstRegistration)
+    val nonEmptyRegistrations = firstRegistrations.dropWhile(r => r.isEmpty)
+    nonEmptyRegistrations.exists(r => r.isEmpty) shouldBe false
+    nonEmptyRegistrations shouldBe sorted
   }
 
   it should "get car adverts by id" in {

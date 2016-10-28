@@ -46,7 +46,7 @@ abstract class AbstractCarAdvertRepositorySpec extends FlatSpec with Matchers wi
     advert shouldBe Some(newAdvert)
   }
 
-  it should "ingore updating non-existing car advert" in {
+  it should "ignore updating non-existing car advert" in {
     val newAdvert = usedCarAdvert("advert10", FuelType.GASOLINE)
 
     repository.update(newAdvert) shouldBe false

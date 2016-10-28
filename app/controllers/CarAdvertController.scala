@@ -8,7 +8,7 @@ import model.CarAdvert
 import play.api.data.validation.ValidationError
 import play.api.libs.json.{JsError, JsPath, Json}
 import play.api.mvc._
-import repository.CarAdvertRepository
+import repository.{CarAdvertRepository, SortFields}
 
 
 object ErrorCodes {
@@ -52,7 +52,7 @@ class CarAdvertController @Inject()(carAdvertRepository: CarAdvertRepository) ex
     Ok("Car advert service running.")
   }
 
-  def carAdverts(sortby: Option[String] = Some("id")) = Action {
+  def carAdverts(sortby: Option[String] = Some(SortFields.ID)) = Action {
     val json = Json.toJson(carAdvertRepository.get(sortby.getOrElse("id")))
     Ok(json)
   }

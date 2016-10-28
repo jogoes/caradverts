@@ -5,7 +5,8 @@
 This is basically a standard Play sbt project which can be built using the known sbt tasks.
 
 Note, that for running the application you need to specify the application secret. 
-One way to do this is to create e.g. a file named `production.conf` like this:
+One way to do this is to create e.g. a file named `production.conf` like this 
+(changing the secret to your own one):
 
     include "application"
     
@@ -23,8 +24,8 @@ which is basically a very simple transient in-memory repository which was the fi
 implementation just in order to get started.
 The `JdbcCarAdvertRepository` is a pure JDBC-based implementation which I implemented in
 order to provide a persistent storage. But since Jdbc has its issues (type safety etc.) and 
-I wanted to try jOOQ in combination with Play anway I added another jOOQ-based implementation 
-in `JooqCarAdvertRepository`.
+I wanted to try jOOQ in combination with Play anyway I added another jOOQ-based repository
+implementation in `JooqCarAdvertRepository`.
 
 jOOQ is based on generated code which can be created using the `generateJOOQ` sbt task. 
 Note, that this requires the evolutions being applied to the database in order to generate
@@ -35,9 +36,9 @@ The reason for a Jdbc-based implementation in combination with the H2-database w
 dependencies to external components to a minimum and prevent e.g. connection or configuration 
 issues in case you want to run the application.
 
-The application is currently configured to create and search the database in the users 
-home directory. In order to change this override the setting for the database you can add
- an entry as below to the production.conf file:
+The application is currently configured to create and use the database found in the users 
+home directory. In order to change this you can override the setting for the database by 
+e.g. adding an entry as below to the abovementioned production.conf file:
 
     db.default.url = "jdbc:h2:file:~/caradvert"
 
@@ -157,4 +158,4 @@ A 400 response is returned in case an advert with the specified id already exist
 
 * for an update it's currently necessary to always send a full object description, 
 ideally only part of the object should be necessary in order to support partial updates.
-
+* (...)

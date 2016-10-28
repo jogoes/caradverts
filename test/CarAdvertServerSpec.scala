@@ -1,13 +1,24 @@
 import json.CarAdvertFormat._
 import model.{CarAdvert, FuelType}
+import org.scalatest.TestData
 import org.scalatestplus.play._
+import play.api.Application
 import play.api.http.Status._
+import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
+import repository.{CarAdvertRepository, TransientInMemoryCarAdvertRepository}
 import testutil.CarAdvertFactory
 
 class CarAdvertServerSpec extends PlaySpec with OneServerPerTest with DefaultAwaitTimeout with FutureAwaits {
+
+  override def newAppForTest(testData: TestData): Application = {
+    GuiceApplicationBuilder()
+      .overrides(bind[CarAdvertRepository].to[TransientInMemoryCarAdvertRepository])
+      .build()
+  }
 
   def address: String = s"localhost:$port"
 

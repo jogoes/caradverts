@@ -3,7 +3,7 @@ package repository.jooq
 import java.util.UUID
 import javax.inject.Inject
 
-import generated.tables.Caradvert._
+import generated.jooq.tables.Caradvert._
 import model.CarAdvert
 import org.jooq.impl.DSL
 import org.jooq.{DSLContext, Record, SQLDialect}

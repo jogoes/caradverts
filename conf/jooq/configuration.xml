@@ -46,7 +46,7 @@
         </database>
 
         <target>
-            <packageName>generated</packageName>
+            <packageName>generated.jooq</packageName>
             <directory>app</directory>
         </target>
     </generator>

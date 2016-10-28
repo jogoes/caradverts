@@ -1,5 +1,40 @@
 # Car Advert REST Service
 
+## Implementation Notes
+
+This is basically a standard Play sbt project which can be built using the known sbt tasks.
+
+Note, that for running the application you need to specify the application secret. 
+One way to do this is to create e.g. a file named `production.conf` like this:
+
+    include "application"
+    
+    play.crypto.secret="nWXNHEMfSmdVMWgkPefAfSo[E7V8EGu_dN1qPutkzI]K`4;<fy0F<P>1c<SLNH0C"
+
+In order to run the application you can e.g. create a .zip using `sbt dist`, uncompress it, 
+put the `production.conf` file into the uncompressed folder and run the application from
+this folder:
+
+    bin/caradverts -Dconfig.file=production.conf
+    
+One note regarding the repositories: this implementation currently contains 
+three different repository implementations. There is the `TransientInMemoryCarAdvertRepository`
+which is basically a very simple transient in-memory repository which was the first 
+implementation just in order to get started.
+The `JdbcCarAdvertRepository` is a pure JDBC-based implementation which I implemented in
+order to provide a persistent storage. But since Jdbc has its issues (type safety etc.) and 
+I wanted to try jOOQ in combination with Play anway I added another jOOQ-based implementation 
+in `JooqCarAdvertRepository`.
+
+jOOQ is based on generated code which can be created using the `generateJOOQ` sbt task. 
+Note, that this requires the evolutions being applied to the database in order to generate
+the correct code. In order to keep things simple, the latest generated code has been added
+ to the repository.
+
+The reason for a Jdbc-based implementation in combination with the H2-database was to keep 
+dependencies to external components to a minimum and prevent e.g. connection or configuration 
+issues in case you want to run the application.
+
 ## REST API
 
 ### Responses

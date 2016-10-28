@@ -1,6 +1,23 @@
 # Car Advert REST Service
 
-##### GET /caradverts[?sortby=\<field\>]
+## REST API
+
+### Responses
+
+The successful execution of a request is indicated by a 2xx HTTP response.
+
+In case of an error in the execution the server returns with a corresponding non-2xx HTTP response 
+with the body containing additional details about the failed request. The response contains a 
+JSON body containing an error code and a message similar to the following:
+
+    {
+      "code": 4001,
+      "message": "Item with id '75fb4ade-f5c7-4da3-b88a-4d6b7d8c42a8' not found."
+    }
+
+### Requests
+
+#### GET /caradverts[?sortby=\<field\>]
 
 Returns a list of existing car adverts. The optional sortby request parameter 
 can be used to return the list sorted by the specified field. Possible field values are:
@@ -35,7 +52,7 @@ Multiple car adverts are returned as a JSON array similar to the following:
       }
     ]
 
-##### GET /caradverts/\<uuid\>
+#### GET /caradverts/\<uuid\>
 
 Returns a car advert given its id. The advert is returned as JSON similar to the following:
 
@@ -48,19 +65,19 @@ Returns a car advert given its id. The advert is returned as JSON similar to the
       "mileage": 123,
       "firstRegistration": "2015-10-11"
     }
-    
+        
 In case of success a 200 response is returned.
 A 404 response is returned in case an advert with the specified id doesn't exist.
     
-##### DELETE /caradverts/\<uuid\>
+#### DELETE /caradverts/\<uuid\>
 
 Deletes the car advert with the specified id.
  
-In case of success a 200 response is returned.
+In case of success a 204 response is returned.
 A 404 response is returned in case an advert with the specified id doesn't exist.
 
 
-##### PUT /caradverts
+#### PUT /caradverts
 
 Updates the car advert with the given id. The JSON is expected to be sent in the body in a format similar to the following:
  
@@ -74,10 +91,10 @@ Updates the car advert with the given id. The JSON is expected to be sent in the
       "firstRegistration": "2015-10-11"
     }
 
-In case of success a 200 response is returned.
+In case of success a 204 response is returned.
 A 404 response is returned in case an advert with the specified id doesn't exist.
 
-##### POST /caradverts
+#### POST /caradverts
 
 Adds a new car advert. The specified id must not exist.
 The JSON is expected to be sent in the body in a format similar to the following:
@@ -92,12 +109,11 @@ The JSON is expected to be sent in the body in a format similar to the following
       "firstRegistration": "2015-10-11"
     }
 
+In case of success a 201 response is returned.
 A 400 response is returned in case an advert with the specified id already exists.
 
-### TODOS
+### Possible Improvements
 
 * for an update it's currently necessary to always send a full object description, 
 ideally only part of the object should be necessary in order to support partial updates.
-* ideally, responses are always JSON. In error cases this is currently not the case. 
-An error response code is correctly returned, but the body of the response is not always JSON.
 

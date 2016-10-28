@@ -25,12 +25,12 @@ class CarAdvertServerSpec extends PlaySpec with OneServerPerTest with DefaultAwa
 
     {
       var response = await(request.post(Json.toJson(advert1)))
-      response.status mustBe OK
+      response.status mustBe CREATED
       // adding twice should return error
       response = await(request.post(Json.toJson(advert1)))
       response.status mustBe BAD_REQUEST
       response = await(request.post(Json.toJson(advert2)))
-      response.status mustBe OK
+      response.status mustBe CREATED
     }
 
     // verify the adverts have been added
@@ -46,7 +46,7 @@ class CarAdvertServerSpec extends PlaySpec with OneServerPerTest with DefaultAwa
 
     {
       val response = await(request.withHeaders(("Content-Type", "application/json")).put(Json.toJson(advert3)))
-      response.status mustBe OK
+      response.status mustBe NO_CONTENT
     }
 
     // verify the adverts have been updated
@@ -60,7 +60,7 @@ class CarAdvertServerSpec extends PlaySpec with OneServerPerTest with DefaultAwa
     // delete car advert
     {
       val response = await(wsClient.url(s"$url/${advert1.id}").delete())
-      response.status mustBe OK
+      response.status mustBe NO_CONTENT
     }
 
     // verify item was deleted
@@ -80,7 +80,7 @@ class CarAdvertServerSpec extends PlaySpec with OneServerPerTest with DefaultAwa
 
     adverts.foreach(advert => {
       var response = await(request.post(Json.toJson(advert)))
-      response.status mustBe OK
+      response.status mustBe CREATED
     })
 
     {

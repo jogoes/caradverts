@@ -3,7 +3,7 @@ package controller
 import java.time.LocalDate
 import java.util.UUID
 
-import controllers.CarAdvertController
+import controllers.{CarAdvertController, ErrorCodes}
 import json.CarAdvertFormat._
 import model.{CarAdvert, FuelType}
 import org.scalatest.BeforeAndAfterEach
@@ -39,6 +39,12 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
 
   def toAdvert(result: Future[Result]) : Option[CarAdvert] = contentAsJson(result).validate[CarAdvert].asOpt
 
+  def validateCodeAndMessage(result: Future[Result], code: Int): Unit = {
+    val jsonError = contentAsJson(result)
+    (jsonError\ "code").get.validate[Int].get mustBe code
+    (jsonError \ "message").get.validate[String].get mustNot be(empty)
+  }
+
   implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
 
   "CarAdvertController" should {
@@ -62,12 +68,14 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
       val result: Future[Result] = controller.carAdvertById(UUID.randomUUID().toString).apply(FakeRequest())
 
       status(result) must equal(NOT_FOUND)
+      validateCodeAndMessage(result, ErrorCodes.ITEM_NOT_FOUND)
     }
 
     "return error in case getting car advert by invalid id" in {
       val result: Future[Result] = controller.carAdvertById("some invalid id").apply(FakeRequest())
 
       status(result) must equal(BAD_REQUEST)
+      validateCodeAndMessage(result, ErrorCodes.INVALID_INPUT_DATA)
     }
 
     "return car adverts sorted by title" in {
@@ -110,36 +118,38 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
     "deleting existing advert should return ok" in {
       val result: Future[Result] = controller.deleteById(carAdverts.head.id.toString).apply(FakeRequest())
 
-      status(result) must equal(OK)
+      status(result) must equal(NO_CONTENT)
     }
 
     "deleting non-existing advert should return error" in {
       val result: Future[Result] = controller.deleteById(UUID.randomUUID().toString).apply(FakeRequest())
 
       status(result) must equal(NOT_FOUND)
+      validateCodeAndMessage(result, 1001)
     }
 
     "adding advert with valid json should return ok" in {
       val json = Json.toJson(CarAdvertFactory.newCarAdvert("advert3", FuelType.GASOLINE))
 
       val result = controller.add().apply(FakeRequest().withBody(json))
-      status(result) must equal(OK)
+      status(result) must equal(CREATED)
     }
 
     "adding advert twice with same id and valid json should return error" in {
       val json = Json.toJson(CarAdvertFactory.newCarAdvert("advert3", FuelType.GASOLINE))
 
       var result = controller.add().apply(FakeRequest().withBody(json))
-      status(result) must equal(OK)
+      status(result) must equal(CREATED)
       result = controller.add().apply(FakeRequest().withBody(json))
       status(result) must equal(BAD_REQUEST)
+      validateCodeAndMessage(result, ErrorCodes.ITEM_ALREADY_EXISTING)
     }
 
     "updating existing advert should return ok" in {
       val json = Json.toJson(carAdverts.head)
 
       val result = controller.update().apply(FakeRequest().withBody(json))
-      status(result) must equal(OK)
+      status(result) must equal(NO_CONTENT)
     }
 
     "updating non-existing advert should return error" in {
@@ -147,6 +157,7 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
 
       val result = controller.update().apply(FakeRequest().withBody(json))
       status(result) must equal(NOT_FOUND)
+      validateCodeAndMessage(result, ErrorCodes.ITEM_NOT_FOUND)
     }
   }
 }

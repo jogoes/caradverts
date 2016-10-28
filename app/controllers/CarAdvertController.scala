@@ -11,22 +11,25 @@ import play.api.mvc._
 import repository.CarAdvertRepository
 
 
+object ErrorCodes {
+  val ITEM_ALREADY_EXISTING = 1000
+  val ITEM_NOT_FOUND = 1001
+  val INVALID_INPUT_DATA = 1002
+}
+
 object CarAdvertController {
-  def toJson(status: String, errors: Seq[(JsPath, Seq[ValidationError])]) = {
+
+  def toJson(errorCode: Int, message: String, errors: Seq[(JsPath, Seq[ValidationError])]) = {
     Json.obj(
-      "status" -> status,
-      "message" -> JsError.toJson(errors))
+      "code" -> errorCode,
+      "errors" -> JsError.toJson(errors))
   }
 
-  def toJson(status: String, message: String) = {
+  def toJson(errorCode: Int, message: String) = {
     Json.obj(
-      "status" -> status,
+      "code" -> errorCode,
       "message" -> message)
   }
-
-  def jsonSuccess(message: String) = toJson("OK", message)
-
-  def jsonError(errors: Seq[(JsPath, Seq[ValidationError])]) = toJson("Error", errors)
 }
 
 @Singleton
@@ -41,7 +44,7 @@ class CarAdvertController @Inject()(carAdvertRepository: CarAdvertRepository) ex
       f(uuidFromString(id))
     } catch {
       case e: IllegalArgumentException =>
-        BadRequest(s"Invalid UUID: ${e.getMessage}")
+        BadRequest(toJson(ErrorCodes.INVALID_INPUT_DATA, s"Invalid UUID '${id}': ${e.getMessage}"))
     }
   }
 
@@ -58,15 +61,15 @@ class CarAdvertController @Inject()(carAdvertRepository: CarAdvertRepository) ex
     withUuid(id, uuid => {
       carAdvertRepository.getById(uuid)
         .map(advert => Ok(Json.toJson(advert))
-        ).getOrElse(NotFound)
+        ).getOrElse(NotFound(toJson(ErrorCodes.ITEM_NOT_FOUND, s"Item with id '$id' not found.")))
     })
   }
 
   def deleteById(id: String) = Action {
     withUuid(id, uuid => {
       carAdvertRepository.delete(uuid) match {
-        case true => Ok(jsonSuccess(s"Item with id '$id' deleted from database."))
-        case _ => NotFound
+        case true => NoContent
+        case _ => NotFound(toJson(ErrorCodes.ITEM_NOT_FOUND, s"Item with id '$id' not found."))
       }
     })
   }
@@ -75,12 +78,12 @@ class CarAdvertController @Inject()(carAdvertRepository: CarAdvertRepository) ex
     val carAdvert = request.body.validate[CarAdvert]
     carAdvert.fold(
       errors => {
-        BadRequest(jsonError(errors))
+        BadRequest(toJson(ErrorCodes.INVALID_INPUT_DATA, "Failed to parse provided JSON data.", errors))
       },
       advert => {
         carAdvertRepository.add(advert) match {
-          case true => Ok(jsonSuccess(s"Item with id '${advert.id}' added to database."))
-          case _ => BadRequest(s"Item with id '${advert.id}' already exists.")
+          case true => Created
+          case _ => BadRequest(toJson(ErrorCodes.ITEM_ALREADY_EXISTING, s"Item with id '${advert.id}' already exists."))
         }
       }
     )
@@ -90,12 +93,12 @@ class CarAdvertController @Inject()(carAdvertRepository: CarAdvertRepository) ex
     val carAdvert = request.body.validate[CarAdvert]
     carAdvert.fold(
       errors => {
-        BadRequest(jsonError(errors))
+        BadRequest(toJson(ErrorCodes.INVALID_INPUT_DATA, "Failed to parse provided JSON data.", errors))
       },
       advert => {
         carAdvertRepository.update(advert) match {
-          case true => Ok(jsonSuccess(s"Item with id '${advert.id}' has been updated."))
-          case _ => NotFound(s"Item with id '${advert.id}' not found.")
+          case true => NoContent
+          case _ => NotFound(toJson(ErrorCodes.ITEM_NOT_FOUND, s"Item with id '$advert.id' not found."))
         }
       }
     )

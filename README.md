@@ -35,6 +35,12 @@ The reason for a Jdbc-based implementation in combination with the H2-database w
 dependencies to external components to a minimum and prevent e.g. connection or configuration 
 issues in case you want to run the application.
 
+The application is currently configured to create and search the database in the users 
+home directory. In order to change this override the setting for the database you can add
+ an entry as below to the production.conf file:
+
+    db.default.url = "jdbc:h2:file:~/caradvert"
+
 ## REST API
 
 ### Responses

@@ -11,6 +11,15 @@ class CarAdvertSpec extends FlatSpec with Matchers {
     an [IllegalArgumentException] should be thrownBy CarAdvert(UUID.randomUUID(), "advert", FuelType.GASOLINE, -1234, isNew=true, None, None)
   }
 
+  it should "not allow null for id" in {
+    an [IllegalArgumentException] should be thrownBy CarAdvert(null, "advert", FuelType.GASOLINE, 1234, isNew=true, None, None)
+  }
+
+  it should "not allow null or empty title" in {
+    an [IllegalArgumentException] should be thrownBy CarAdvert(UUID.randomUUID(), null, FuelType.GASOLINE, 1234, isNew=true, None, None)
+    an [IllegalArgumentException] should be thrownBy CarAdvert(UUID.randomUUID(), "", FuelType.GASOLINE, 1234, isNew=true, None, None)
+  }
+
   it should "not allow mileage for new cars" in {
     an [IllegalArgumentException] should be thrownBy CarAdvert(UUID.randomUUID(), "advert", FuelType.GASOLINE, 1234, isNew=true, Some(1234), None)
   }

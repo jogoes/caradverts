@@ -158,4 +158,11 @@ A 400 response is returned in case an advert with the specified id already exist
 
 * for an update it's currently necessary to always send a full object description, 
 ideally only part of the object should be necessary in order to support partial updates.
+* use another table for the fuel types and store only references in the main `caradvert` table
+* `PathBindable` and `QuerySringBindable` could be used to bind parameters to their corresponding types (e.g. UUID)
+* unify returned errors: currently when errors occur before the request reaches the controller 
+(e.g. in case of invalid JSON being sent to the server) the response is the error response as 
+created by Play (i.e. an HTML error page). Ideally, this should actually be a JSON response 
+  in case clients are not only evaluating the response code but are also expecting JSON in the 
+  response body.
 * (...)

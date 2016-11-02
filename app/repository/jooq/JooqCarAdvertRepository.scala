@@ -47,7 +47,7 @@ class JooqCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
         .from(CARADVERT)
         .fetch()
         .asScala
-        .map(r => toCarAdvert(r))
+        .map(toCarAdvert)
     })
   }
 
@@ -72,7 +72,7 @@ class JooqCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
         .orderBy(tableField)
         .fetch()
         .asScala
-        .map(r => toCarAdvert(r))
+        .map(toCarAdvert)
     })
   }
 

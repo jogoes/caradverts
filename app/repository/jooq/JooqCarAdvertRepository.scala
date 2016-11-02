@@ -88,19 +88,16 @@ class JooqCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
     })
   }
 
+  def mileage(carAdvert: CarAdvert): Integer = {
+    carAdvert.mileage match {
+      case Some(m) => m
+      case None => null
+    }
+  }
+
   override def add(carAdvert: CarAdvert): Boolean = {
     withDSLContext(dslContext => {
       import CARADVERT._
-
-      val mileage: Integer = carAdvert.mileage match {
-        case Some(m) => m
-        case None => null
-      }
-
-      val firstRegistration = carAdvert.firstRegistration match {
-        case Some(fr) => fr
-        case None => null
-      }
 
       dslContext
         .insertInto(CARADVERT, ID, TITLE, FUEL, PRICE, ISNEW, MILEAGE, FIRSTREGISTRATION)
@@ -110,8 +107,8 @@ class JooqCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
           carAdvert.fuel,
           carAdvert.price,
           carAdvert.isNew,
-          mileage,
-          firstRegistration
+          mileage(carAdvert),
+          carAdvert.firstRegistration.orNull
         )
         .execute()
 
@@ -123,16 +120,6 @@ class JooqCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
     withDSLContext(dslContext => {
       import CARADVERT._
 
-      val mileage: Integer = carAdvert.mileage match {
-        case Some(m) => m
-        case None => null
-      }
-
-      val firstRegistration = carAdvert.firstRegistration match {
-        case Some(fr) => fr
-        case None => null
-      }
-
       dslContext
         .update(CARADVERT)
         .set(ID, carAdvert.id)
@@ -140,8 +127,8 @@ class JooqCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
         .set(FUEL, carAdvert.fuel)
         .set(PRICE, int2Integer(carAdvert.price))
         .set(ISNEW, boolean2Boolean(carAdvert.isNew))
-        .set(MILEAGE, mileage)
-        .set(FIRSTREGISTRATION, firstRegistration)
+        .set(MILEAGE, mileage(carAdvert))
+        .set(FIRSTREGISTRATION, carAdvert.firstRegistration.orNull)
         .where(ID.equal(carAdvert.id))
         .execute() > 0
     })

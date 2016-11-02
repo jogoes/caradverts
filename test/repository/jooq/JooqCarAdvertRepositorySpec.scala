@@ -1,6 +1,6 @@
-package repository
+package repository.jooq
 
-import repository.jooq.JooqCarAdvertRepository
+import repository.{AbstractCarAdvertRepositorySpec, DatabaseEvolution}
 
 class JooqCarAdvertRepositorySpec extends AbstractCarAdvertRepositorySpec with DatabaseEvolution {
 

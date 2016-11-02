@@ -1,6 +1,6 @@
-package repository
+package repository.inmemory
 
-import repository.inmemory.TransientInMemoryCarAdvertRepository
+import repository.AbstractCarAdvertRepositorySpec
 
 class TransientInMemoryCarAdvertRepositorySpec extends AbstractCarAdvertRepositorySpec {
 

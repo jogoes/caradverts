@@ -1,6 +1,6 @@
-package repository
+package repository.jdbc
 
-import repository.jdbc.JdbcCarAdvertRepository
+import repository.{AbstractCarAdvertRepositorySpec, DatabaseEvolution}
 
 class JdbcCarAdvertRepositorySpec extends AbstractCarAdvertRepositorySpec with DatabaseEvolution {
 

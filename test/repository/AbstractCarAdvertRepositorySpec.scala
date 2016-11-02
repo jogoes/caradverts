@@ -39,6 +39,10 @@ abstract class AbstractCarAdvertRepositorySpec extends FlatSpec with Matchers wi
     repository.get() should contain theSameElementsAs adverts
   }
 
+  it should "not insert item with same id twice" in {
+    repository.add(adverts.head) shouldBe false
+  }
+
   it should "return car adverts sorted by id" in {
     repository.get("id").map(_.id) shouldBe sorted
   }
@@ -74,7 +78,7 @@ abstract class AbstractCarAdvertRepositorySpec extends FlatSpec with Matchers wi
   }
 
   it should "get car adverts by id" in {
-    repository.getById(adverts.head.id) shouldBe Some(adverts.head)
+    repository.getById(adverts.head.id) shouldBe adverts.headOption
   }
 
   it should "return none for not existing id" in {
@@ -99,6 +103,13 @@ abstract class AbstractCarAdvertRepositorySpec extends FlatSpec with Matchers wi
   it should "delete existing car advert" in {
     repository.delete(adverts.head.id) shouldBe true
     repository.getById(adverts.head.id) shouldBe None
+  }
+
+  it should "delete existing car advert and add it again" in {
+    repository.delete(adverts.head.id) shouldBe true
+    repository.getById(adverts.head.id) shouldBe None
+    repository.add(adverts.head) shouldBe true
+    repository.getById(adverts.head.id) shouldBe adverts.headOption
   }
 
   it should "not delete non-existing car advert" in {

@@ -99,20 +99,27 @@ class JooqCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
     withDSLContext(dslContext => {
       import CARADVERT._
 
-      dslContext
-        .insertInto(CARADVERT, ID, TITLE, FUEL, PRICE, ISNEW, MILEAGE, FIRSTREGISTRATION)
-        .values(
-          carAdvert.id,
-          carAdvert.title,
-          carAdvert.fuel,
-          carAdvert.price,
-          carAdvert.isNew,
-          mileage(carAdvert),
-          carAdvert.firstRegistration.orNull
-        )
-        .execute()
+      val exists = dslContext
+        .selectOne()
+        .from(CARADVERT)
+        .where(ID.equal(carAdvert.id))
+        .execute() > 0
 
-      true
+      if(!exists) {
+        dslContext
+          .insertInto(CARADVERT, ID, TITLE, FUEL, PRICE, ISNEW, MILEAGE, FIRSTREGISTRATION)
+          .values(
+            carAdvert.id,
+            carAdvert.title,
+            carAdvert.fuel,
+            carAdvert.price,
+            carAdvert.isNew,
+            mileage(carAdvert),
+            carAdvert.firstRegistration.orNull
+          )
+          .execute()
+      }
+      !exists
     })
   }
 

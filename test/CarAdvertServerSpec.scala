@@ -1,24 +1,34 @@
 import json.CarAdvertFormat._
 import model.{CarAdvert, FuelType}
-import org.scalatest.TestData
+import org.scalatest._
 import org.scalatestplus.play._
 import play.api.Application
+import play.api.db.Database
 import play.api.http.Status._
-import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
-import repository.CarAdvertRepository
-import repository.inmemory.TransientInMemoryCarAdvertRepository
 import testutil.CarAdvertFactory
 
-class CarAdvertServerSpec extends PlaySpec with OneServerPerTest with DefaultAwaitTimeout with FutureAwaits {
+class CarAdvertServerSpec extends PlaySpec with OneServerPerTest with DefaultAwaitTimeout with FutureAwaits with BeforeAndAfterEach {
 
   override def newAppForTest(testData: TestData): Application = {
-    GuiceApplicationBuilder()
-      .overrides(bind[CarAdvertRepository].to[TransientInMemoryCarAdvertRepository])
+    val app = GuiceApplicationBuilder()
+      .configure(
+        "db.default.url" -> "jdbc:h2:mem:caradvertservertest",
+        "db.default.username" -> ""
+      )
       .build()
+
+    // make sure we start with a clean table for each test
+    val database = app.injector.instanceOf(classOf[Database])
+    database.withConnection(connection => {
+      val stmt = connection.createStatement()
+      stmt.execute("TRUNCATE TABLE caradvert")
+    })
+
+    app
   }
 
   def address: String = s"localhost:$port"

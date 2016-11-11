@@ -10,5 +10,5 @@ object Orderings {
 
   implicit val uuidOrdering: Ordering[UUID] = Ordering.by(_.toString)
 
-  implicit val fuelOrdering: Ordering[FuelType.FuelType] = Ordering.by(_.toString)
+  implicit val fuelOrdering: Ordering[FuelType] = Ordering.by(_.name)
 }

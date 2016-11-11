@@ -4,7 +4,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 import model.FuelType
-import model.FuelType._
+import model.FuelTypes._
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
 import repository.SortFieldType._
 import testutil.CarAdvertFactory._
@@ -31,7 +31,7 @@ abstract class AbstractCarAdvertRepositorySpec extends FlatSpec with Matchers wi
 
   implicit val uuidOrdering: Ordering[UUID] = Ordering.by(_.toString)
 
-  implicit val fuelOrdering: Ordering[FuelType.FuelType] = Ordering.by(_.toString)
+  implicit val fuelOrdering: Ordering[FuelType] = Ordering.by(_.name)
 
   private def fillRepository(repository: CarAdvertRepository) = adverts.foreach(repository.add)
 
@@ -83,7 +83,7 @@ abstract class AbstractCarAdvertRepositorySpec extends FlatSpec with Matchers wi
   }
 
   it should "update existing car advert" in {
-    val newAdvert = newCarAdvert(adverts.head.id, "advert10", FuelType.GASOLINE)
+    val newAdvert = newCarAdvert(adverts.head.id, "advert10", GASOLINE)
 
     repository.update(newAdvert) shouldBe true
     val advert = repository.getById(adverts.head.id)
@@ -91,7 +91,7 @@ abstract class AbstractCarAdvertRepositorySpec extends FlatSpec with Matchers wi
   }
 
   it should "ignore updating non-existing car advert" in {
-    val newAdvert = usedCarAdvert("advert10", FuelType.GASOLINE)
+    val newAdvert = usedCarAdvert("advert10", GASOLINE)
 
     repository.update(newAdvert) shouldBe false
     repository.get() should contain theSameElementsAs adverts

@@ -4,35 +4,17 @@
 package generated.jooq.tables
 
 
-import generated.jooq.Keys
-import generated.jooq.Public
-import generated.jooq.tables.records.CaradvertRecord
-
 import java.lang.Boolean
-import java.lang.Class
-import java.lang.Integer
-import java.lang.String
 import java.time.LocalDate
-import java.util.Arrays
-import java.util.List
-import java.util.UUID
-
+import java.util.{Arrays, List, UUID}
 import javax.annotation.Generated
 
-import model.FuelType.FuelType
-
-import org.jooq.Field
-import org.jooq.Schema
-import org.jooq.Table
-import org.jooq.TableField
-import org.jooq.UniqueKey
+import generated.jooq.tables.records.CaradvertRecord
+import generated.jooq.{Keys, Public}
+import model.FuelType
+import org.jooq._
 import org.jooq.impl.TableImpl
-
-import repository.jooq.FuelTypeConverter
-import repository.jooq.SqlDateToLocalDateConverter
-import repository.jooq.UUIDConverter
-
-import scala.Array
+import repository.jooq.{FuelTypeConverter, SqlDateToLocalDateConverter, UUIDConverter}
 
 
 object Caradvert {

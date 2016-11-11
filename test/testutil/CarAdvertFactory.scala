@@ -4,8 +4,7 @@ import java.time.LocalDate
 import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
 
-import model.CarAdvert
-import model.FuelType._
+import model.{CarAdvert, FuelType}
 
 object CarAdvertFactory {
 

@@ -1,5 +1,6 @@
 import json.CarAdvertFormat._
-import model.{CarAdvert, FuelType}
+import model.CarAdvert
+import model.FuelTypes._
 import org.scalatest._
 import org.scalatestplus.play._
 import play.api.Application
@@ -42,8 +43,8 @@ class CarAdvertServerSpec extends PlaySpec with OneServerPerTest with DefaultAwa
   def toAdverts(response: WSResponse): Seq[CarAdvert] = Json.parse(response.body).validate[Seq[CarAdvert]].get
 
   "test adding car adverts" in {
-    val advert1 = CarAdvertFactory.newCarAdvert("advert1", FuelType.GASOLINE)
-    val advert2 = CarAdvertFactory.newCarAdvert("advert2", FuelType.DIESEL)
+    val advert1 = CarAdvertFactory.newCarAdvert("advert1", GASOLINE)
+    val advert2 = CarAdvertFactory.newCarAdvert("advert2", DIESEL)
 
     {
       var response = await(request.post(Json.toJson(advert1)))
@@ -64,7 +65,7 @@ class CarAdvertServerSpec extends PlaySpec with OneServerPerTest with DefaultAwa
     }
 
     // update car advert
-    val advert3 = CarAdvertFactory.newCarAdvert(advert2.id, "advert3", FuelType.GASOLINE)
+    val advert3 = CarAdvertFactory.newCarAdvert(advert2.id, "advert3", GASOLINE)
 
     {
       val response = await(request.withHeaders(("Content-Type", "application/json")).put(Json.toJson(advert3)))
@@ -96,8 +97,8 @@ class CarAdvertServerSpec extends PlaySpec with OneServerPerTest with DefaultAwa
 
   "car adverts are returned sorted" in {
     val adverts = Seq(
-      CarAdvertFactory.newCarAdvert("advert1", FuelType.GASOLINE),
-      CarAdvertFactory.newCarAdvert("advert2", FuelType.DIESEL)
+      CarAdvertFactory.newCarAdvert("advert1", GASOLINE),
+      CarAdvertFactory.newCarAdvert("advert2", DIESEL)
     )
 
     adverts.foreach(advert => {

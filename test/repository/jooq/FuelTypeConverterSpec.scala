@@ -1,6 +1,6 @@
 package repository.jooq
 
-import model.FuelType
+import model.FuelTypes._
 import org.scalatest.{FlatSpec, Matchers}
 
 class FuelTypeConverterSpec extends FlatSpec with Matchers {
@@ -8,13 +8,13 @@ class FuelTypeConverterSpec extends FlatSpec with Matchers {
   private val converter = new FuelTypeConverter
 
   "FuelTypeConverter" should "convert from string to fuel type" in {
-    converter.from("GASOLINE") shouldBe FuelType.GASOLINE
-    converter.from("DIESEL") shouldBe FuelType.DIESEL
+    converter.from("GASOLINE") shouldBe GASOLINE
+    converter.from("DIESEL") shouldBe DIESEL
   }
 
   it should "convert from fuel type to string" in {
-    converter.to(FuelType.GASOLINE) shouldBe "GASOLINE"
-    converter.to(FuelType.DIESEL) shouldBe "DIESEL"
+    converter.to(GASOLINE) shouldBe "GASOLINE"
+    converter.to(DIESEL) shouldBe "DIESEL"
   }
 
   it should "throw exception in case of invalid string" in {

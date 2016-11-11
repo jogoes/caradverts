@@ -4,7 +4,8 @@ import java.util.UUID
 
 import controllers.{CarAdvertController, ErrorCodes}
 import json.CarAdvertFormat._
-import model.{CarAdvert, FuelType}
+import model.CarAdvert
+import model.FuelTypes._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play._
@@ -26,8 +27,8 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
   var controller : CarAdvertController = _
 
   val carAdverts = Seq(
-    CarAdvertFactory.newCarAdvert("advert1", FuelType.GASOLINE),
-    CarAdvertFactory.newCarAdvert("advert2", FuelType.DIESEL)
+    CarAdvertFactory.newCarAdvert("advert1", GASOLINE),
+    CarAdvertFactory.newCarAdvert("advert2", DIESEL)
   )
 
   override protected def beforeEach(): Unit = {
@@ -79,8 +80,8 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
     }
 
     "return car adverts sorted by title" in {
-      carAdvertRepository.add(CarAdvertFactory.newCarAdvert("aa", FuelType.GASOLINE))
-      carAdvertRepository.add(CarAdvertFactory.newCarAdvert("zz", FuelType.GASOLINE))
+      carAdvertRepository.add(CarAdvertFactory.newCarAdvert("aa", GASOLINE))
+      carAdvertRepository.add(CarAdvertFactory.newCarAdvert("zz", GASOLINE))
 
       val result: Future[Result] = controller.carAdverts(Some(TITLE.name)).apply(FakeRequest())
 
@@ -89,8 +90,8 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
     }
 
     "return car adverts sorted by price" in {
-      carAdvertRepository.add(CarAdvertFactory.newCarAdvert("aa", FuelType.GASOLINE))
-      carAdvertRepository.add(CarAdvertFactory.newCarAdvert("zz", FuelType.GASOLINE))
+      carAdvertRepository.add(CarAdvertFactory.newCarAdvert("aa", GASOLINE))
+      carAdvertRepository.add(CarAdvertFactory.newCarAdvert("zz", GASOLINE))
 
       val result: Future[Result] = controller.carAdverts(Some(PRICE.name)).apply(FakeRequest())
       status(result) must equal(OK)
@@ -98,8 +99,8 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
     }
 
     "return car adverts sorted by mileage" in {
-      carAdvertRepository.add(CarAdvertFactory.usedCarAdvert("aa", FuelType.GASOLINE))
-      carAdvertRepository.add(CarAdvertFactory.usedCarAdvert("zz", FuelType.GASOLINE))
+      carAdvertRepository.add(CarAdvertFactory.usedCarAdvert("aa", GASOLINE))
+      carAdvertRepository.add(CarAdvertFactory.usedCarAdvert("zz", GASOLINE))
 
       val result: Future[Result] = controller.carAdverts(Some(MILEAGE.name)).apply(FakeRequest())
       status(result) must equal(OK)
@@ -107,8 +108,8 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
     }
 
     "return car adverts sorted by first registration" in {
-      carAdvertRepository.add(CarAdvertFactory.usedCarAdvert("aa", FuelType.GASOLINE))
-      carAdvertRepository.add(CarAdvertFactory.usedCarAdvert("zz", FuelType.GASOLINE))
+      carAdvertRepository.add(CarAdvertFactory.usedCarAdvert("aa", GASOLINE))
+      carAdvertRepository.add(CarAdvertFactory.usedCarAdvert("zz", GASOLINE))
 
       val result: Future[Result] = controller.carAdverts(Some(FIRSTREGISTRATION.name)).apply(FakeRequest())
       status(result) must equal(OK)
@@ -129,14 +130,14 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
     }
 
     "adding advert with valid json should return ok" in {
-      val json = Json.toJson(CarAdvertFactory.newCarAdvert("advert3", FuelType.GASOLINE))
+      val json = Json.toJson(CarAdvertFactory.newCarAdvert("advert3", GASOLINE))
 
       val result = controller.add().apply(FakeRequest().withBody(json))
       status(result) must equal(CREATED)
     }
 
     "adding advert twice with same id and valid json should return error" in {
-      val json = Json.toJson(CarAdvertFactory.newCarAdvert("advert3", FuelType.GASOLINE))
+      val json = Json.toJson(CarAdvertFactory.newCarAdvert("advert3", GASOLINE))
 
       var result = controller.add().apply(FakeRequest().withBody(json))
       status(result) must equal(CREATED)
@@ -153,7 +154,7 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
     }
 
     "updating non-existing advert should return error" in {
-      val json = Json.toJson(CarAdvertFactory.newCarAdvert("advert3", FuelType.GASOLINE))
+      val json = Json.toJson(CarAdvertFactory.newCarAdvert("advert3", GASOLINE))
 
       val result = controller.update().apply(FakeRequest().withBody(json))
       status(result) must equal(NOT_FOUND)

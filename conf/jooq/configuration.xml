@@ -13,7 +13,7 @@
 
             <customTypes>
                 <customType>
-                    <name>model.FuelType.FuelType</name>
+                    <name>model.FuelType</name>
                     <converter>repository.jooq.FuelTypeConverter</converter>
                 </customType>
                 <customType>
@@ -27,7 +27,7 @@
             </customTypes>
             <forcedTypes>
                 <forcedType>
-                    <name>model.FuelType.FuelType</name>
+                    <name>model.FuelType</name>
                     <expression>.*\.FUEL.*</expression>
                 </forcedType>
                 <forcedType>

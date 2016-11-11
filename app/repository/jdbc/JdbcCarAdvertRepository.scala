@@ -5,7 +5,8 @@ import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
 
-import model.{CarAdvert, FuelType}
+import model.FuelTypes._
+import model.{CarAdvert, FuelTypes}
 import play.api.db.Database
 import repository.{CarAdvertRepository, SortField}
 
@@ -21,8 +22,9 @@ class JdbcCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
 
   def toCarAdvert(rs: ResultSet): CarAdvert = {
     val mileage = rs.getInt(6)
-    val optMileage = if(rs.wasNull()) None else Some(mileage)
-    CarAdvert(UUID.fromString(rs.getString(1)), rs.getString(2), FuelType.withName(rs.getString(3)), rs.getInt(4), rs.getBoolean(5), optMileage, toLocalDate(rs.getDate(7)))
+    val optMileage = if (rs.wasNull()) None else Some(mileage)
+    val fuelType = FuelTypes.fromString(rs.getString(3)).getOrElse(UNKNOWN)
+    CarAdvert(UUID.fromString(rs.getString(1)), rs.getString(2), fuelType, rs.getInt(4), rs.getBoolean(5), optMileage, toLocalDate(rs.getDate(7)))
   }
 
   override def get(): Seq[CarAdvert] = {
@@ -119,7 +121,7 @@ class JdbcCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
     }
   }
 
-  def update(connection:Connection, carAdvert: CarAdvert) : Boolean = {
+  def update(connection: Connection, carAdvert: CarAdvert): Boolean = {
     val stmt = connection.prepareStatement("UPDATE caradvert SET title=?, fuel=?, price=?, isnew=?, mileage=?, firstregistration=? WHERE id=?")
 
     stmt.setString(1, carAdvert.title)

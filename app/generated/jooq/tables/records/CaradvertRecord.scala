@@ -4,25 +4,15 @@
 package generated.jooq.tables.records
 
 
-import generated.jooq.tables.Caradvert
-
 import java.lang.Boolean
-import java.lang.Integer
-import java.lang.String
 import java.time.LocalDate
 import java.util.UUID
-
 import javax.annotation.Generated
 
-import model.FuelType.FuelType
-
-import org.jooq.Field
-import org.jooq.Record1
-import org.jooq.Record7
-import org.jooq.Row7
+import generated.jooq.tables.Caradvert
+import model.FuelType
 import org.jooq.impl.UpdatableRecordImpl
-
-import scala.Array
+import org.jooq.{Field, Record1, Record7, Row7}
 
 
 /**

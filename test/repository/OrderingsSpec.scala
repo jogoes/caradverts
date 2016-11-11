@@ -4,8 +4,8 @@ import java.time.LocalDate
 import java.util.UUID
 
 import model.FuelType
+import model.FuelTypes._
 import org.scalatest.{FlatSpec, Matchers}
-
 import repository.Orderings._
 
 class OrderingsSpec extends FlatSpec with Matchers {
@@ -30,11 +30,11 @@ class OrderingsSpec extends FlatSpec with Matchers {
   }
 
   it should "order fuel types" in {
-    val fuelType1 = FuelType.GASOLINE
-    val fuelType2 = FuelType.DIESEL
-    val fuelType3 = FuelType.GASOLINE
+    val fuelType1 = GASOLINE
+    val fuelType2 = DIESEL
+    val fuelType3 = GASOLINE
 
-    val fuelTypes = List(fuelType1, fuelType2, fuelType3)
+    val fuelTypes = List[FuelType](fuelType1, fuelType2, fuelType3)
     fuelTypes.sorted shouldBe List(fuelType2, fuelType1, fuelType3)
     fuelTypes.sorted shouldBe List(fuelType2, fuelType3, fuelType1)
   }

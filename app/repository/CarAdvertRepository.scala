@@ -8,7 +8,7 @@ trait CarAdvertRepository {
 
   def get(): Seq[CarAdvert]
 
-  def get(sortField: String): Seq[CarAdvert]
+  def get(sortField: SortField): Seq[CarAdvert]
 
   def getById(id: UUID): Option[CarAdvert]
 

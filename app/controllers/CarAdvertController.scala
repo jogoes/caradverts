@@ -8,7 +8,8 @@ import model.CarAdvert
 import play.api.data.validation.ValidationError
 import play.api.libs.json.{JsError, JsObject, JsPath, Json}
 import play.api.mvc._
-import repository.{CarAdvertRepository, SortFields}
+import repository.SortFieldType._
+import repository.{CarAdvertRepository, SortFieldType}
 
 import scala.util.{Failure, Success, Try}
 
@@ -53,8 +54,11 @@ class CarAdvertController @Inject()(carAdvertRepository: CarAdvertRepository) ex
     Ok("Car advert service running.")
   }
 
-  def carAdverts(sortby: Option[String] = Some(SortFields.ID)) = Action {
-    val json = Json.toJson(carAdvertRepository.get(sortby.getOrElse("id")))
+  def carAdverts(sortby: Option[String] = Some(ID.name)) = Action {
+    val sortField = sortby
+      .flatMap(name => SortFieldType.fromString(name))
+      .getOrElse(ID)
+    val json = Json.toJson(carAdvertRepository.get(sortField))
     Ok(json)
   }
 

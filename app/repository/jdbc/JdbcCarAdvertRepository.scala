@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 import model.{CarAdvert, FuelType}
 import play.api.db.Database
-import repository.{CarAdvertRepository, SortFields}
+import repository.{CarAdvertRepository, SortField}
 
 class JdbcCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepository {
 
@@ -42,10 +42,8 @@ class JdbcCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
   }
 
 
-  override def get(sortField: String): Seq[CarAdvert] = {
-
-    val dbSortField = if (SortFields.ALL.contains(sortField)) sortField else SortFields.ID
-
+  override def get(sortField: SortField): Seq[CarAdvert] = {
+    val dbSortField = sortField.name
     db.withConnection {
       connection => {
         val stmt = connection.createStatement()

@@ -8,7 +8,8 @@ import model.CarAdvert
 import org.jooq.impl.DSL
 import org.jooq.{DSLContext, Record, SQLDialect}
 import play.api.db.Database
-import repository.{CarAdvertRepository, SortFields}
+import repository.SortFieldType._
+import repository._
 
 import scala.collection.JavaConverters._
 
@@ -51,19 +52,23 @@ class JooqCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
     })
   }
 
-  private val sortFieldMap = Map(
-    SortFields.ID -> CARADVERT.ID,
-    SortFields.TITLE -> CARADVERT.TITLE,
-    SortFields.FUEL -> CARADVERT.FUEL,
-    SortFields.PRICE -> CARADVERT.PRICE,
-    SortFields.ISNEW -> CARADVERT.ISNEW,
-    SortFields.MILEAGE -> CARADVERT.MILEAGE,
-    SortFields.FIRSTREGISTRATION -> CARADVERT.FIRSTREGISTRATION
-  )
+  def toTableField(sortField: SortField) = sortField match {
+    case ID => CARADVERT.ID
+    case TITLE => CARADVERT.TITLE
+    case FUEL => CARADVERT.FUEL
+    case PRICE => CARADVERT.PRICE
+    case ISNEW => CARADVERT.ISNEW
+    case MILEAGE => CARADVERT.MILEAGE
+    case FIRSTREGISTRATION => CARADVERT.FIRSTREGISTRATION
+  }
 
-  override def get(sortField: String): Seq[CarAdvert] = {
+  override def get(sortField: SortField): Seq[CarAdvert] = {
 
-    val tableField = sortFieldMap.getOrElse(sortField, CARADVERT.ID)
+    val tableField = toTableField(sortField)
+
+    val adverts = DSL.select()
+      .from(CARADVERT)
+      .orderBy(tableField)
 
     withDSLContext(dslContext => {
       dslContext
@@ -105,7 +110,7 @@ class JooqCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
         .where(ID.equal(carAdvert.id))
         .execute() > 0
 
-      if(!exists) {
+      if (!exists) {
         dslContext
           .insertInto(CARADVERT, ID, TITLE, FUEL, PRICE, ISNEW, MILEAGE, FIRSTREGISTRATION)
           .values(

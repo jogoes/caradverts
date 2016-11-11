@@ -6,6 +6,7 @@ import java.util.UUID
 import model.FuelType
 import model.FuelType._
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
+import repository.SortFieldType._
 import testutil.CarAdvertFactory._
 
 abstract class AbstractCarAdvertRepositorySpec extends FlatSpec with Matchers with BeforeAndAfterEach {
@@ -44,34 +45,30 @@ abstract class AbstractCarAdvertRepositorySpec extends FlatSpec with Matchers wi
   }
 
   it should "return car adverts sorted by id" in {
-    repository.get("id").map(_.id) shouldBe sorted
+    repository.get(ID).map(_.id) shouldBe sorted
   }
 
   it should "return car adverts sorted by title" in {
-    repository.get("title").map(_.title) shouldBe sorted
+    repository.get(TITLE).map(_.title) shouldBe sorted
   }
 
   it should "return car adverts sorted by fuel" in {
-    repository.get("fuel").map(_.fuel) shouldBe sorted
+    repository.get(FUEL).map(_.fuel) shouldBe sorted
   }
 
   it should "return car adverts sorted by price" in {
-    repository.get("price").map(_.price) shouldBe sorted
-  }
-
-  it should "return car adverts sorted by id if sort field is unknown" in {
-    repository.get("abcd").map(_.id) shouldBe sorted
+    repository.get(PRICE).map(_.price) shouldBe sorted
   }
 
   it should "return car adverts sorted by mileage" in {
-    val mileages = repository.get("mileage").map(_.mileage)
+    val mileages = repository.get(MILEAGE).map(_.mileage)
     val nonEmptyMileages = mileages.dropWhile(m => m.isEmpty)
     nonEmptyMileages.exists(m => m.isEmpty) shouldBe false
     nonEmptyMileages shouldBe sorted
   }
 
   it should "return car adverts sorted by firstregistration" in {
-    val firstRegistrations = repository.get("firstregistration").map(_.firstRegistration)
+    val firstRegistrations = repository.get(FIRSTREGISTRATION).map(_.firstRegistration)
     val nonEmptyRegistrations = firstRegistrations.dropWhile(r => r.isEmpty)
     nonEmptyRegistrations.exists(r => r.isEmpty) shouldBe false
     nonEmptyRegistrations shouldBe sorted

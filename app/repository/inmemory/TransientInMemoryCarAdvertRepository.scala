@@ -5,7 +5,7 @@ import javax.inject._
 
 import model.CarAdvert
 import repository.Orderings._
-import repository.{CarAdvertRepository, SortFields}
+import repository._
 
 /**
   * A simple repository implementation keeping all data in memory not persisting it to anywhere.
@@ -19,17 +19,19 @@ class TransientInMemoryCarAdvertRepository extends CarAdvertRepository {
 
   override def get(): Seq[CarAdvert] = carAdverts.values.toSeq
 
-  override def get(sortField: String): Seq[CarAdvert] = {
+  override def get(sortField: SortField): Seq[CarAdvert] = {
     val adverts = carAdverts.values.toSeq
 
-    sortField.toLowerCase() match {
-      case SortFields.TITLE => adverts.sortBy(_.title)
-      case SortFields.FUEL => adverts.sortBy(_.fuel)
-      case SortFields.PRICE => adverts.sortBy(_.price)
-      case SortFields.ISNEW => adverts.sortBy(_.isNew)
-      case SortFields.MILEAGE => adverts.sortBy(_.mileage)
-      case SortFields.FIRSTREGISTRATION => adverts.sortBy(_.firstRegistration)
-      case _ => adverts.sortBy(_.id)
+    import SortFieldType._
+
+    sortField match {
+      case TITLE => adverts.sortBy(_.title)
+      case FUEL => adverts.sortBy(_.fuel)
+      case PRICE => adverts.sortBy(_.price)
+      case ISNEW => adverts.sortBy(_.isNew)
+      case MILEAGE => adverts.sortBy(_.mileage)
+      case FIRSTREGISTRATION => adverts.sortBy(_.firstRegistration)
+      case ID => adverts.sortBy(_.id)
     }
   }
 

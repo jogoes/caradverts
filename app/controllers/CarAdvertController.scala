@@ -39,15 +39,19 @@ class CarAdvertController @Inject()(carAdvertRepository: CarAdvertRepository) ex
 
   import CarAdvertController._
 
+  def badRequest(errorCode: Int, message: String): Result = BadRequest(toJson(errorCode, message))
+
+  def badRequest(errorCode: Int, message: String, errors: Seq[(JsPath, Seq[ValidationError])]): Result = BadRequest(toJson(errorCode, message, errors))
+
+  def badRequest(errors: Seq[(JsPath, Seq[ValidationError])]): Result = badRequest(ErrorCodes.INVALID_INPUT_DATA, "Failed to parse provided JSON data.", errors)
+
+  def notFound(id: String): Result = NotFound(toJson(ErrorCodes.ITEM_NOT_FOUND, s"Item with id '$id' not found."))
+
   def withUuid(id: String, f: (UUID => Result)): Result = {
     Try(UUID.fromString(id)) match {
       case Success(uuid) => f(uuid)
-      case Failure(ex) => BadRequest(toJson(ErrorCodes.INVALID_INPUT_DATA, s"Invalid UUID '$id': ${ex.getMessage}"))
+      case Failure(ex) => badRequest(ErrorCodes.INVALID_INPUT_DATA, s"Invalid UUID '$id': ${ex.getMessage}")
     }
-  }
-
-  private def toBadRequest(errors: Seq[(JsPath, Seq[ValidationError])]): Result = {
-    BadRequest(toJson(ErrorCodes.INVALID_INPUT_DATA, "Failed to parse provided JSON data.", errors))
   }
 
   def index = Action {
@@ -56,7 +60,7 @@ class CarAdvertController @Inject()(carAdvertRepository: CarAdvertRepository) ex
 
   def carAdverts(sortby: Option[String] = Some(ID.name)) = Action {
     val sortField = sortby
-      .flatMap(name => SortFieldType.fromString(name))
+      .flatMap(SortFieldType.fromString)
       .getOrElse(ID)
     val json = Json.toJson(carAdvertRepository.get(sortField))
     Ok(json)
@@ -85,12 +89,12 @@ class CarAdvertController @Inject()(carAdvertRepository: CarAdvertRepository) ex
     request.body
       .validate[CarAdvert]
       .fold(
-        errors => toBadRequest(errors),
+        errors => badRequest(errors),
         advert => {
           if (carAdvertRepository.add(advert)) {
             Created
           } else {
-            BadRequest(toJson(ErrorCodes.ITEM_ALREADY_EXISTING, s"Item with id '${advert.id}' already exists."))
+            badRequest(ErrorCodes.ITEM_ALREADY_EXISTING, s"Item with id '${advert.id}' already exists.")
           }
         }
       )
@@ -100,7 +104,7 @@ class CarAdvertController @Inject()(carAdvertRepository: CarAdvertRepository) ex
     request.body
       .validate[CarAdvert]
       .fold(
-        errors => toBadRequest(errors),
+        errors => badRequest(errors),
         advert => {
           if (carAdvertRepository.update(advert)) {
             NoContent

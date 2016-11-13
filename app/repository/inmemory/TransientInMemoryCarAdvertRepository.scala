@@ -1,9 +1,10 @@
 package repository.inmemory
 
+import java.time.LocalDate
 import java.util.UUID
 import javax.inject._
 
-import model.CarAdvert
+import model.{CarAdvert, NewCarAdvert, UsedCarAdvert}
 import repository.Orderings._
 import repository._
 
@@ -28,9 +29,18 @@ class TransientInMemoryCarAdvertRepository extends CarAdvertRepository {
       case TITLE => adverts.sortBy(_.title)
       case FUEL => adverts.sortBy(_.fuel)
       case PRICE => adverts.sortBy(_.price)
-      case ISNEW => adverts.sortBy(_.isNew)
-      case MILEAGE => adverts.sortBy(_.mileage)
-      case FIRSTREGISTRATION => adverts.sortBy(_.firstRegistration)
+      case ISNEW => adverts.sortBy {
+        case newAdvert : NewCarAdvert => 1
+        case usedCarAdvert: UsedCarAdvert => 0
+      }
+      case MILEAGE => adverts.sortBy {
+        case _ : NewCarAdvert => Int.MinValue
+        case usedCarAdvert: UsedCarAdvert => usedCarAdvert.mileage
+      }
+      case FIRSTREGISTRATION => adverts.sortBy {
+        case _ : NewCarAdvert => LocalDate.MIN
+        case usedCarAdvert: UsedCarAdvert => usedCarAdvert.firstRegistration
+      }
       case ID => adverts.sortBy(_.id)
     }
   }

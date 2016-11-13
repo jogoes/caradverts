@@ -1,10 +1,11 @@
 package repository.jooq
 
+import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
 
 import generated.jooq.tables.Caradvert._
-import model.CarAdvert
+import model.{CarAdvert, NewCarAdvert, UsedCarAdvert}
 import org.jooq.impl.DSL
 import org.jooq.{DSLContext, Record, SQLDialect}
 import play.api.db.Database
@@ -25,20 +26,22 @@ class JooqCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
   def toCarAdvert(record: Record): CarAdvert = {
     import CARADVERT._
 
-    val mileage: Option[Int] = record.get(MILEAGE) match {
-      case null => None
-      case m => Some(m)
+    val isNew = record.get(ISNEW)
+    if (isNew) {
+      CarAdvert(
+        record.get(ID),
+        record.get(TITLE),
+        record.get(FUEL),
+        record.get(PRICE))
+    } else {
+      CarAdvert(
+        record.get(ID),
+        record.get(TITLE),
+        record.get(FUEL),
+        record.get(PRICE),
+        record.get(MILEAGE),
+        record.get(FIRSTREGISTRATION))
     }
-
-    CarAdvert(
-      record.get(ID),
-      record.get(TITLE),
-      record.get(FUEL),
-      record.get(PRICE),
-      record.get(ISNEW),
-      mileage,
-      Option(record.get(FIRSTREGISTRATION)))
-
   }
 
   override def get(): Seq[CarAdvert] = {
@@ -94,9 +97,16 @@ class JooqCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
   }
 
   def mileage(carAdvert: CarAdvert): Integer = {
-    carAdvert.mileage match {
-      case Some(m) => m
-      case None => null
+    carAdvert match {
+      case _: NewCarAdvert => null
+      case usedCarAdvert: UsedCarAdvert => usedCarAdvert.mileage
+    }
+  }
+
+  def firstRegistration(carAdvert: CarAdvert): LocalDate = {
+    carAdvert match {
+      case _: NewCarAdvert => null
+      case usedCarAdvert: UsedCarAdvert => usedCarAdvert.firstRegistration
     }
   }
 
@@ -110,6 +120,7 @@ class JooqCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
         .where(ID.equal(carAdvert.id))
         .execute() > 0
 
+      val isNew = carAdvert.isInstanceOf[NewCarAdvert]
       if (!exists) {
         dslContext
           .insertInto(CARADVERT, ID, TITLE, FUEL, PRICE, ISNEW, MILEAGE, FIRSTREGISTRATION)
@@ -118,9 +129,9 @@ class JooqCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
             carAdvert.title,
             carAdvert.fuel,
             carAdvert.price,
-            carAdvert.isNew,
+            isNew,
             mileage(carAdvert),
-            carAdvert.firstRegistration.orNull
+            firstRegistration(carAdvert)
           )
           .execute()
       }
@@ -132,17 +143,23 @@ class JooqCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
     withDSLContext(dslContext => {
       import CARADVERT._
 
-      dslContext
+      val updateStatement = dslContext
         .update(CARADVERT)
         .set(ID, carAdvert.id)
         .set(TITLE, carAdvert.title)
         .set(FUEL, carAdvert.fuel)
         .set(PRICE, int2Integer(carAdvert.price))
-        .set(ISNEW, boolean2Boolean(carAdvert.isNew))
-        .set(MILEAGE, mileage(carAdvert))
-        .set(FIRSTREGISTRATION, carAdvert.firstRegistration.orNull)
-        .where(ID.equal(carAdvert.id))
-        .execute() > 0
+
+      carAdvert match {
+        case newCarAdvert: NewCarAdvert =>
+          updateStatement.set(ISNEW, boolean2Boolean(true))
+        case usedCarAdvert: UsedCarAdvert =>
+          updateStatement.set(ISNEW, boolean2Boolean(false))
+            .set(MILEAGE, mileage(carAdvert))
+            .set(FIRSTREGISTRATION, firstRegistration(carAdvert))
+      }
+
+      updateStatement.where(ID.equal(carAdvert.id)).execute() > 0
     })
   }
 

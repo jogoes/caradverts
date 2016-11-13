@@ -1,19 +1,19 @@
 package repository
 
-import java.time.LocalDate
 import java.util.UUID
 
-import model.FuelType
 import model.FuelTypes._
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
+import repository.Orderings._
 import repository.SortFieldType._
 import testutil.CarAdvertFactory._
+import testutil.CarAdvertHelpers._
 
 abstract class AbstractCarAdvertRepositorySpec extends FlatSpec with Matchers with BeforeAndAfterEach {
 
-  def repositoryFactory : () => CarAdvertRepository
+  def repositoryFactory: () => CarAdvertRepository
 
-  var repository : CarAdvertRepository = _
+  var repository: CarAdvertRepository = _
 
   val adverts = Seq(
     usedCarAdvert("advert1", GASOLINE),
@@ -26,12 +26,6 @@ abstract class AbstractCarAdvertRepositorySpec extends FlatSpec with Matchers wi
     repository = repositoryFactory()
     fillRepository(repository)
   }
-
-  implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
-
-  implicit val uuidOrdering: Ordering[UUID] = Ordering.by(_.toString)
-
-  implicit val fuelOrdering: Ordering[FuelType] = Ordering.by(_.name)
 
   private def fillRepository(repository: CarAdvertRepository) = adverts.foreach(repository.add)
 
@@ -61,17 +55,11 @@ abstract class AbstractCarAdvertRepositorySpec extends FlatSpec with Matchers wi
   }
 
   it should "return car adverts sorted by mileage" in {
-    val mileages = repository.get(MILEAGE).map(_.mileage)
-    val nonEmptyMileages = mileages.dropWhile(m => m.isEmpty)
-    nonEmptyMileages.exists(m => m.isEmpty) shouldBe false
-    nonEmptyMileages shouldBe sorted
+    repository.get(MILEAGE).map(toMileage) shouldBe sorted
   }
 
   it should "return car adverts sorted by firstregistration" in {
-    val firstRegistrations = repository.get(FIRSTREGISTRATION).map(_.firstRegistration)
-    val nonEmptyRegistrations = firstRegistrations.dropWhile(r => r.isEmpty)
-    nonEmptyRegistrations.exists(r => r.isEmpty) shouldBe false
-    nonEmptyRegistrations shouldBe sorted
+    repository.get(FIRSTREGISTRATION).map(toFirstRegistration) shouldBe sorted
   }
 
   it should "get car adverts by id" in {

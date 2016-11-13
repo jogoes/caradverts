@@ -11,6 +11,7 @@ import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import testutil.CarAdvertFactory
+import testutil.CarAdvertHelpers._
 
 class CarAdvertServerSpec extends PlaySpec with OneServerPerTest with DefaultAwaitTimeout with FutureAwaits with BeforeAndAfterEach {
 
@@ -119,7 +120,7 @@ class CarAdvertServerSpec extends PlaySpec with OneServerPerTest with DefaultAwa
       response.status mustBe OK
       val carAdverts = toAdverts(response)
       carAdverts.length mustBe adverts.length
-      carAdverts.map(_.mileage) mustBe sorted
+      carAdverts.map(toMileage) mustBe sorted
     }
   }
 }

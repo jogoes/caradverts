@@ -9,27 +9,23 @@ import org.scalatest.{FlatSpec, Matchers}
 class CarAdvertSpec extends FlatSpec with Matchers {
 
   "CarAdvert" should "not allow negative values for price" in {
-    an [IllegalArgumentException] should be thrownBy CarAdvert(UUID.randomUUID(), "advert", GASOLINE, -1234, isNew=true, None, None)
+    an [IllegalArgumentException] should be thrownBy CarAdvert(UUID.randomUUID(), "advert", GASOLINE, -1234)
   }
 
   it should "not allow null for id" in {
-    an [IllegalArgumentException] should be thrownBy CarAdvert(null, "advert", GASOLINE, 1234, isNew=true, None, None)
+    an [IllegalArgumentException] should be thrownBy CarAdvert(null, "advert", GASOLINE, 1234)
   }
 
   it should "not allow null or empty title" in {
-    an [IllegalArgumentException] should be thrownBy CarAdvert(UUID.randomUUID(), null, GASOLINE, 1234, isNew=true, None, None)
-    an [IllegalArgumentException] should be thrownBy CarAdvert(UUID.randomUUID(), "", GASOLINE, 1234, isNew=true, None, None)
+    an [IllegalArgumentException] should be thrownBy CarAdvert(UUID.randomUUID(), null, GASOLINE, 1234)
+    an [IllegalArgumentException] should be thrownBy CarAdvert(UUID.randomUUID(), "", GASOLINE, 1234)
   }
 
-  it should "not allow mileage for new cars" in {
-    an [IllegalArgumentException] should be thrownBy CarAdvert(UUID.randomUUID(), "advert", GASOLINE, 1234, isNew=true, Some(1234), None)
-  }
-
-  it should "not allow first registration date for new cars" in {
-    an [IllegalArgumentException] should be thrownBy CarAdvert(UUID.randomUUID(), "advert", GASOLINE, 1234, isNew=true, None, Some(LocalDate.now()))
+  it should "not allow null registration date" in {
+    an [IllegalArgumentException] should be thrownBy CarAdvert(UUID.randomUUID(), "advert", GASOLINE, 1234, 8471, null)
   }
 
   it should "not allow negative values for mileage" in {
-    an [IllegalArgumentException] should be thrownBy CarAdvert(UUID.randomUUID(), "advert", GASOLINE, -1234, isNew=false, Some(-1234), Some(LocalDate.now()))
+    an [IllegalArgumentException] should be thrownBy CarAdvert(UUID.randomUUID(), "advert", GASOLINE, 1234, -1234, LocalDate.now())
   }
 }

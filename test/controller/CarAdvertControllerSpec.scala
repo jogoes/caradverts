@@ -18,6 +18,7 @@ import repository.SortFieldType._
 import repository._
 import repository.inmemory.TransientInMemoryCarAdvertRepository
 import testutil.CarAdvertFactory
+import testutil.CarAdvertHelpers._
 
 import scala.concurrent.Future
 
@@ -104,7 +105,7 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
 
       val result: Future[Result] = controller.carAdverts(Some(MILEAGE.name)).apply(FakeRequest())
       status(result) must equal(OK)
-      toAdverts(result).map(_.mileage) mustBe sorted
+      toAdverts(result).map(toMileage) mustBe sorted
     }
 
     "return car adverts sorted by first registration" in {
@@ -113,7 +114,7 @@ class CarAdvertControllerSpec extends PlaySpec with Results with MockitoSugar wi
 
       val result: Future[Result] = controller.carAdverts(Some(FIRSTREGISTRATION.name)).apply(FakeRequest())
       status(result) must equal(OK)
-      toAdverts(result).map(_.firstRegistration) mustBe sorted
+      toAdverts(result).map(toFirstRegistration) mustBe sorted
     }
 
     "deleting existing advert should return ok" in {

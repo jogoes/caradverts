@@ -19,9 +19,9 @@ object CarAdvertFactory {
 
   def randomMileage = nextInt(0, 5000000)
 
-  def usedCarAdvert(name: String, fuelType: FuelType): CarAdvert = CarAdvert(UUID.randomUUID(), name, fuelType, randomPrice, isNew = false, Some(randomMileage), Some(randomDate))
+  def usedCarAdvert(name: String, fuelType: FuelType): CarAdvert = CarAdvert(UUID.randomUUID(), name, fuelType, randomPrice, randomMileage, randomDate)
 
   def newCarAdvert(name: String, fuelType: FuelType): CarAdvert = newCarAdvert(UUID.randomUUID(), name, fuelType)
 
-  def newCarAdvert(id: UUID, name: String, fuelType: FuelType): CarAdvert = CarAdvert(id, name, fuelType, randomPrice, isNew = true, None, None)
+  def newCarAdvert(id: UUID, name: String, fuelType: FuelType): CarAdvert = CarAdvert(id, name, fuelType, randomPrice)
 }

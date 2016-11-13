@@ -6,7 +6,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 import model.FuelTypes._
-import model.{CarAdvert, FuelTypes}
+import model.{CarAdvert, FuelTypes, NewCarAdvert, UsedCarAdvert}
 import play.api.db.Database
 import repository.{CarAdvertRepository, SortField}
 
@@ -24,7 +24,12 @@ class JdbcCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
     val mileage = rs.getInt(6)
     val optMileage = if (rs.wasNull()) None else Some(mileage)
     val fuelType = FuelTypes.fromString(rs.getString(3)).getOrElse(UNKNOWN)
-    CarAdvert(UUID.fromString(rs.getString(1)), rs.getString(2), fuelType, rs.getInt(4), rs.getBoolean(5), optMileage, toLocalDate(rs.getDate(7)))
+    val isNew = rs.getBoolean(5)
+    if(isNew) {
+      CarAdvert(UUID.fromString(rs.getString(1)), rs.getString(2), fuelType, rs.getInt(4))
+    } else {
+      CarAdvert(UUID.fromString(rs.getString(1)), rs.getString(2), fuelType, rs.getInt(4), rs.getInt(6), rs.getDate(7).toLocalDate)
+    }
   }
 
   override def get(): Seq[CarAdvert] = {
@@ -96,14 +101,15 @@ class JdbcCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
     stmt.setString(2, carAdvert.title)
     stmt.setString(3, carAdvert.fuel.toString)
     stmt.setInt(4, carAdvert.price)
-    stmt.setBoolean(5, carAdvert.isNew)
-    carAdvert.mileage match {
-      case Some(m) => stmt.setInt(6, m)
-      case None => stmt.setNull(6, Types.INTEGER)
-    }
-    carAdvert.firstRegistration match {
-      case Some(r) => stmt.setDate(7, Date.valueOf(r))
-      case None => stmt.setNull(7, Types.DATE)
+    carAdvert match {
+      case newCarAdvert : NewCarAdvert =>
+        stmt.setBoolean(5, true)
+        stmt.setNull(6, Types.INTEGER)
+        stmt.setNull(7, Types.DATE)
+      case usedCarAdvert : UsedCarAdvert =>
+        stmt.setBoolean(5, false)
+        stmt.setInt(6, usedCarAdvert.mileage)
+        stmt.setDate(7, Date.valueOf(usedCarAdvert.firstRegistration))
     }
     stmt.execute()
   }
@@ -127,14 +133,15 @@ class JdbcCarAdvertRepository @Inject()(db: Database) extends CarAdvertRepositor
     stmt.setString(1, carAdvert.title)
     stmt.setString(2, carAdvert.fuel.toString)
     stmt.setInt(3, carAdvert.price)
-    stmt.setBoolean(4, carAdvert.isNew)
-    carAdvert.mileage match {
-      case Some(m) => stmt.setInt(5, m)
-      case None => stmt.setNull(5, Types.INTEGER)
-    }
-    carAdvert.firstRegistration match {
-      case Some(r) => stmt.setDate(6, Date.valueOf(r))
-      case None => stmt.setNull(6, Types.DATE)
+    carAdvert match {
+      case newCarAdvert : NewCarAdvert =>
+        stmt.setBoolean(4, true)
+        stmt.setNull(5, Types.INTEGER)
+        stmt.setNull(6, Types.DATE)
+      case usedCarAdvert : UsedCarAdvert =>
+        stmt.setBoolean(4, false)
+        stmt.setInt(5, usedCarAdvert.mileage)
+        stmt.setDate(6, Date.valueOf(usedCarAdvert.firstRegistration))
     }
     stmt.setString(7, carAdvert.id.toString)
     stmt.executeUpdate() > 0
